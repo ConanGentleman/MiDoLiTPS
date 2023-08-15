@@ -3,6 +3,8 @@
 
 #include "BaseGeometryActor.h"
 #include "Engine/Engine.h"
+#include "Materials/MaterialInstanceDynamic.h"
+#include "TimerManager.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogBaseGeometry,All, All)
 
@@ -25,6 +27,11 @@ void ABaseGeometryActor::BeginPlay()
 	//printTransform();
 	//printStringTypes();
 	//printTypes();
+
+	SetColor(GeometryData.Color);
+
+	//参数：计时器句柄;每次计数器触发时要在其上调用函数的对象指针;每次触发时都会调用的函数的引用;计时器频率;计时器是否循环
+	GetWorldTimerManager().SetTimer(TimerHandle,this, &ABaseGeometryActor::OnTimerFired,GeometryData.TimerRate,true);
 }
 
 // Called every frame
@@ -95,5 +102,29 @@ void ABaseGeometryActor::HandleMovement()
 		break;
 	default:
 		break;
+	}
+}
+
+void ABaseGeometryActor::SetColor(const FLinearColor& Color)
+{
+	//参数：材质索引
+	UMaterialInstanceDynamic* DynMaterial = BaseMesh->CreateAndSetMaterialInstanceDynamic(0);
+	if (DynMaterial) {
+		//参数：材质中参数的名称
+		DynMaterial->SetVectorParameterValue("Color", Color);
+	}
+}
+
+void ABaseGeometryActor::OnTimerFired()
+{
+	if (++TimerCount <= MaxTimerCount) {
+		//局部变量声明为const，表示该变量的值在初始化后不能被修改。
+		const FLinearColor NewColor = FLinearColor::MakeRandomColor();
+		UE_LOG(LogBaseGeometry, Display, TEXT("Color to set up: %s"), *NewColor.ToString());
+		SetColor(NewColor);
+	}
+	else {
+		UE_LOG(LogBaseGeometry, Warning, TEXT("Timer has been stopped"));
+		GetWorldTimerManager().ClearTimer(TimerHandle);
 	}
 }
