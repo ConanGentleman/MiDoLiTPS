@@ -7,6 +7,11 @@
 #include "Components/StaticMeshComponent.h"
 #include "BaseGeometryActor.generated.h"
 
+//声明多播委托的宏（DYNAMIC用于运行时绑定，可用于蓝图；另一个是编译时绑定，不可用于蓝图）
+//参数：调用函数；参数1类型，参数1在蓝图中的变量名
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnColorChanged, const FLinearColor&, Color, const FString&, Name);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnTimerFinished,AActor*);
+
 UENUM(BlueprintType)
 enum class EMovementType:uint8
 {
@@ -19,16 +24,16 @@ struct FGeometryData
 {
 	GENERATED_USTRUCT_BODY()
 
-	UPROPERTY(EditAnywhere, Category = "Movement")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float Amplitude = 50.0f;
 
-	UPROPERTY(EditAnywhere, Category = "Movement")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float Frequency = 2.0f;
 
-	UPROPERTY(EditAnywhere, Category = "Movement")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	EMovementType MoveType = EMovementType::Static;
 
-	UPROPERTY(EditAnywhere, Category = "Design")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Design")
 	FLinearColor Color = FLinearColor::Black;
 
 	UPROPERTY(EditAnywhere, Category = "Design")
@@ -49,11 +54,17 @@ public:
 	//函数体少的函数可以直接在.h文件内定义
 	void SetGeometryData(const FGeometryData& Data) { GeometryData = Data; }
 
+	UFUNCTION(BlueprintCallable)
+	FGeometryData GetGeometryData() const { return GeometryData; }
+
+	UPROPERTY(BlueprintAssignable)
+	FOnColorChanged OnColorChanged;
+	FOnTimerFinished OnTimerFinished;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditAnywhere, Category = "Geometry Data")
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Geometry Data")
 	FGeometryData GeometryData;
 
 	UPROPERTY(EditAnywhere, Category="Weapon")
