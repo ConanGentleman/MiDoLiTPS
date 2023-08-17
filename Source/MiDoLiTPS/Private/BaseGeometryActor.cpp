@@ -66,9 +66,10 @@ void ABaseGeometryActor::PrintStringTypes() {
 	FString stat = FString::Printf(TEXT("\n == ALL Stat == \n %s  \n %s \n %s"), *WeaponsNumStr, *HealthStr, *IsDeadStr);
 	UE_LOG(LogBaseGeometry, Warning, TEXT("%s"), *stat);
 
-	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, Name);
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, stat, true, FVector2D(1.5f, 1.5f));
-
+	if (GEngine) {
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, Name);
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, stat, true, FVector2D(1.5f, 1.5f));
+	}
 }
 void ABaseGeometryActor::PrintTransform() {
 
@@ -91,13 +92,16 @@ void ABaseGeometryActor::HandleMovement()
 	switch (GeometryData.MoveType)
 	{
 	case EMovementType::Sin: {
-		float Time = GetWorld()->GetTimeSeconds();
 		FVector CurrentLocation = GetActorLocation();
-		CurrentLocation.Z = InitialLocation.Z + GeometryData.Amplitude * FMath::Sin(GeometryData.Frequency * Time);
+		if (GetWorld()) {//确保游戏对象存在
+			float Time = GetWorld()->GetTimeSeconds();
+			CurrentLocation.Z = InitialLocation.Z + GeometryData.Amplitude * FMath::Sin(GeometryData.Frequency * Time);
 
-		SetActorLocation(CurrentLocation);
+			SetActorLocation(CurrentLocation);
+		}
 	}
-						   break;
+	break;
+	
 	case EMovementType::Static:
 		break;
 	default:
@@ -107,6 +111,7 @@ void ABaseGeometryActor::HandleMovement()
 
 void ABaseGeometryActor::SetColor(const FLinearColor& Color)
 {
+	if (!BaseMesh) return;
 	//参数：材质索引
 	UMaterialInstanceDynamic* DynMaterial = BaseMesh->CreateAndSetMaterialInstanceDynamic(0);
 	if (DynMaterial) {

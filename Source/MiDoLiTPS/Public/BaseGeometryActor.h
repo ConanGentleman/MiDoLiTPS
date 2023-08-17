@@ -46,6 +46,8 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* BaseMesh;
+	//函数体少的函数可以直接在.h文件内定义
+	void SetGeometryData(const FGeometryData& Data) { GeometryData = Data; }
 
 protected:
 	// Called when the game starts or when spawned
