@@ -4,6 +4,8 @@
 #include "GeometryHubActor.h"
 #include "Engine/World.h"
 
+DEFINE_LOG_CATEGORY_STATIC(LogGeometryHub, All, All)
+
 // Sets default values
 AGeometryHubActor::AGeometryHubActor()
 {
@@ -17,8 +19,8 @@ void AGeometryHubActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	DoActorSpawn1();
-	DoActorSpawn2();
+	//DoActorSpawn1();
+	//DoActorSpawn2();
 	DoActorSpawn3();
 }
 
@@ -68,15 +70,42 @@ void AGeometryHubActor::DoActorSpawn3()
 	UWorld* World = GetWorld();
 	if (World) {
 		for (const FGeometryPayload Payload : GeometryPayloads) {
+			//生成ABaseGeometryActor
 			ABaseGeometryActor* Geometry = World->SpawnActorDeferred<ABaseGeometryActor>(Payload.GeometryClass, Payload.InitialTransform);
 
 			if (Geometry) {
 				Geometry->SetGeometryData(Payload.Data);
+				//添加动态委托使用AddDynamic。参数： 指向对象的指针，对该对象功能的引用（即，当委托被触发时，将调用它）
+				Geometry->OnColorChanged.AddDynamic(this,&AGeometryHubActor::OnColorChanged);
+				//不是动态委托使用AddUObject。参数同上；
+				Geometry->OnTimerFinished.AddUObject(this,&AGeometryHubActor::OnTimerFinished);
 				Geometry->FinishSpawning(Payload.InitialTransform);//手动调用BeginPlay()
 
 			}
 		}
 	}
+}
+//颜色变化
+void AGeometryHubActor::OnColorChanged(const FLinearColor& Color, const FString& Name)
+{
+	UE_LOG(LogGeometryHub, Warning, TEXT("Actor name: %s Color %s"), *Name, *Color.ToString());
+}
+//计时器
+void AGeometryHubActor::OnTimerFinished(AActor* Actor)
+{
+	if (!Actor) return;
+	UE_LOG(LogGeometryHub, Error, TEXT("Timer finished: %s"),*Actor->GetName());
+
+	//Cast将基类指针转换为只想子类的指针
+	ABaseGeometryActor* Geometry = Cast<ABaseGeometryActor>(Actor);
+	if (!Geometry) return;
+
+	UE_LOG(LogGeometryHub, Display, TEXT("Cast is success, amplitude %f"), Geometry->GetGeometryData().Amplitude);
+
+	//删除
+	Geometry->Destroy();
+	//计时器，多少秒后执行删除操作
+	//Geometry->SetLifeSpan(2.0f);
 }
 
 // Called every frame

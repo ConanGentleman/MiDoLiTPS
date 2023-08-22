@@ -34,6 +34,12 @@ void ABaseGeometryActor::BeginPlay()
 	GetWorldTimerManager().SetTimer(TimerHandle,this, &ABaseGeometryActor::OnTimerFired,GeometryData.TimerRate,true);
 }
 
+void ABaseGeometryActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	UE_LOG(LogBaseGeometry, Error, TEXT("Actor is dead %s"), *GetName());
+	Super::EndPlay(EndPlayReason);
+}
+
 // Called every frame
 void ABaseGeometryActor::Tick(float DeltaTime)
 {
@@ -119,7 +125,9 @@ void ABaseGeometryActor::SetColor(const FLinearColor& Color)
 		DynMaterial->SetVectorParameterValue("Color", Color);
 	}
 }
-
+/// <summary>
+/// 小于最小计数 输出颜色与名称信息；大于则输出停止信息
+/// </summary>
 void ABaseGeometryActor::OnTimerFired()
 {
 	if (++TimerCount <= MaxTimerCount) {

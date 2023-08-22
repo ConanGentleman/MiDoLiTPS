@@ -64,6 +64,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	//在被删除前调用 在这里重写
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Geometry Data")
 	FGeometryData GeometryData;
 

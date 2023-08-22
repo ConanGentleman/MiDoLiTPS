@@ -13,5 +13,6 @@ UCLASS()
 class MIDOLITPS_API AMiDoLiTPSGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
-	
+public:
+	AMiDoLiTPSGameModeBase();
 };
