@@ -12,13 +12,14 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnColorChanged, const FLinearColor&, Color, const FString&, Name);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnTimerFinished,AActor*);
 
+//声明枚举  明明以E开头
 UENUM(BlueprintType)
 enum class EMovementType:uint8
 {
 	Sin,
 	Static,
 };
-
+//声明结构体 命名以F开头
 USTRUCT(BlueprintType)
 struct FGeometryData
 {

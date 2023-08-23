@@ -52,9 +52,15 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 private:
+	ABaseGeometryActor* NonePropertyActor;
+
+	UPROPERTY() //标记为UPROPERTY的指针  垃圾回收时才会被重置
+	ABaseGeometryActor* PropertyActor;
+
 	void DoActorSpawn1();
 	void DoActorSpawn2();
 	void DoActorSpawn3();
+	void DoActorSpawn4();
 
 	UFUNCTION()
 	void OnColorChanged(const FLinearColor& Color, const FString& Name);
